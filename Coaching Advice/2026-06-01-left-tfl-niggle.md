@@ -1,8 +1,10 @@
 # Left TFL Niggle — Assessment & Plan
 
 **Logged:** 2026-06-01
-**Status:** Active / monitoring
+**Status:** Monitoring — tolerated quality load (updated 2026-06-03)
 **Region:** Left tensor fasciae latae (TFL), lateral hip
+
+> **2026-06-03 update:** TFL felt better on 06-02 and did **not flare** during/after the 6×800 m @ ~3:45/km quality session (HR 148–153, stride to ~1500 mm) — i.e. it tolerated peak hip-flexor/swing load. Revised from "pull intensity" to "monitoring." See [2026-06-03 quality note](2026-06-03-quality-6x800.md). Keep watching cumulative load (06-01→06-03 was easy + run+bike + quality); honour Friday rest.
 
 ## Symptom report (athlete)
 - Niggle in **left TFL**. Originated around the marathon **4 weeks ago**.
