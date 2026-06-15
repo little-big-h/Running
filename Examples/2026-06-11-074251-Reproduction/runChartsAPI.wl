@@ -276,9 +276,19 @@ barsAPI = APIFunction[
                 {Dashed, Gray, InfiniteLine[{0, refY}, {1, 0}]},
                 {}];
 
+    (* Custom ChartElementFunction: anchor every bar at yMin instead of 0.
+       Without this, BarChart draws bars from y=0 upward; when yMin > 0
+       (e.g. pace bars in a 3'00"-8'30" window) the bottom slice from 0
+       to yMin gets clipped, leaving a "bars-protruding-below-the-axis"
+       artifact. Anchoring at yMin gives clean bars that sit on the
+       x-axis. *)
+    barFromBase[{{x1_, x2_}, {_, y2_}}, ___] := {EdgeForm[None],
+       Rectangle[{x1, yMin}, {x2, Max[y2, yMin]}]};
+
     plot = BarChart[vals,
       ChartLabels -> (Style[#, 16, Bold] & /@ labels),
       ChartStyle -> parsedColors,
+      ChartElementFunction -> barFromBase,
       LabelingFunction -> labelFn,
       PlotLabel -> If[a["title"] =!= "", Style[a["title"], 28, Bold], None],
       ImageSize -> 1040,
@@ -287,6 +297,7 @@ barsAPI = APIFunction[
       FrameTicksStyle -> Directive[Black, 20],
       FrameLabel -> {Style[a["xlabel"], 22], Style[a["ylabel"], 22]},
       PlotRange -> {Automatic, {yMin, yMax}},
+      PlotRangePadding -> {Automatic, {0, Scaled[0.05]}},
       GridLines -> {None, Automatic},
       GridLinesStyle -> Directive[LightGray, Dashed],
       Epilog -> epilog];
