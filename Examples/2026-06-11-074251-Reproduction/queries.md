@@ -138,7 +138,126 @@ Target/baseline %s: speed 109%, power 106%, HR 109%, distance 135%, duration 126
 
 METs = `kcal_per_min / (77.8 × 0.0175)`. Target METs = 11.25, baseline METs = 10.65 → **106%**.
 
-## L. Wolfram — HR plot
+## L. Wolfram Cloud — endpoint deployment
+
+Deploy the three chart endpoints from `runChartsAPI.wl` (re-evaluate the whole file in an authenticated kernel):
+
+```
+Deployed endpoints:
+  /lineplot -> https://www.wolframcloud.com/obj/pirk0/runCharts/lineplot
+  /donut    -> https://www.wolframcloud.com/obj/pirk0/runCharts/donut
+  /bars     -> https://www.wolframcloud.com/obj/pirk0/runCharts/bars
+```
+
+All visualizations in `report.md` are `<img>` references to these URLs, with data arrays baked into the query string. The endpoints return `image/svg+xml` directly — no client-side rendering, no PNG step.
+
+## M. URL recipes (build with `URLBuild`)
+
+Every chart in the report was assembled with the same pattern: take the BOSS-derived metric array, riffle it as a comma-separated string, and call `URLBuild` against the matching endpoint. The 12 calls used:
+
+```mathematica
+(* Helper: comma-join numeric list with a chosen precision *)
+joinNums[lst_, dp_:2] := StringRiffle[NumberForm[#, {Infinity, dp}, NumberPadding -> ""] & /@ N[lst], ","];
+
+xs = Range[Length[hrData]] * 0.1 - 0.05;  (* 158 100m bin centers *)
+paceData = 1000./speedData/60.;            (* min/km from m/s *)
+
+base = "https://www.wolframcloud.com/obj/pirk0/runCharts/";
+urlLine[ys_, opts_] := URLBuild[{base, "lineplot"},
+  Join[{"xs" -> joinNums[xs, 2], "ys" -> joinNums[ys, 3]}, opts]];
+
+(* HR *)
+urlLine[hrData,
+  {"title" -> "Heart Rate \[Bullet] avg 138 \[Bullet] max 162 bpm",
+   "ylabel" -> "Heart Rate (bpm)", "color" -> "red",
+   "xMin" -> "0", "xMax" -> "16", "yMin" -> "80", "yMax" -> "165",
+   "refLine" -> "138"}]
+
+(* Pace *)
+urlLine[paceData,
+  {"title" -> "Pace \[Bullet] avg 4'23\" \[Bullet] best 3'09\" /km",
+   "ylabel" -> "Pace (min/km)", "color" -> "blue",
+   "xMin" -> "0", "xMax" -> "16", "yMin" -> "2.8", "yMax" -> "6.5",
+   "reversed" -> "true"}]
+
+(* Power *)
+urlLine[powerData,
+  {"title" -> "Running Power \[Bullet] avg 307 \[Bullet] max 437 W",
+   "ylabel" -> "Power (W)", "color" -> "powerorange",
+   "xMin" -> "0", "xMax" -> "16", "yMin" -> "150", "yMax" -> "450",
+   "refLine" -> "307"}]
+
+(* Cadence — note: stored as half-steps per second, ×2 for spm *)
+urlLine[2 cadenceData, {…"color" -> "purple"…"refLine" -> "169"}]
+
+(* Stride length — stored in mm, /10 for cm *)
+urlLine[strideData/10., {…"color" -> "darkgreen"…"refLine" -> "136"}]
+
+(* Vertical oscillation — stored in mm, /10 for cm *)
+urlLine[voData/10., {…"color" -> "#8033B3"…}]
+
+(* GCT *)
+urlLine[gctData, {…"color" -> "#B34D33"…"yMin" -> "200", "yMax" -> "280"}]
+
+(* Elevation — filled profile *)
+urlLine[altData, {…"color" -> "brown"…"filled" -> "true", "aspect" -> "0.4"}]
+
+(* HR Zones — donut *)
+URLBuild[{base, "donut"},
+  {"labels" -> "Z5 \[GreaterEqual]164  0%;Z4 150-163  30%;Z3 136-149  27%;Z2 122-135  37%;Z1 60-121  5%",
+   "vals" -> "0.001,30,27,37,5",
+   "colors" -> "#4D4DFF,#FF8000,#FFD933,#4DCC4D,#0099E6",
+   "title" -> "Heart Rate Zones"}]
+
+(* Training Load Focus — donut *)
+URLBuild[{base, "donut"},
+  {"labels" -> "High Aerobic 70% (82);Low Aerobic 30% (35)",
+   "vals" -> "70,30",
+   "colors" -> "#FF8000,#4DCC4D",
+   "title" -> "Training Load Focus \[Bullet] 117 TSS"}]
+
+(* Effort Profile — bars vs 30-day baseline *)
+URLBuild[{base, "bars"},
+  {"labels" -> "Avg Speed,Avg Power,Avg HR,METs,Distance,Duration",
+   "vals" -> "109,106,109,106,135,126",
+   "colors" -> "#3366FF,#CC6600,#FF3333,#80B333,#666666,#9933B3",
+   "title" -> "Effort Profile \[Bullet] vs prior 30 days",
+   "unit" -> "%", "yMin" -> "0", "yMax" -> "160", "refLine" -> "100"}]
+
+(* 1 km Splits — bars with "pace" unit (M'SS" formatting) *)
+URLBuild[{base, "bars"},
+  {"labels" -> "0-1,1-2,2-3,3-4,4-5,5-6,6-7,7-8,8-9,9-10,10-11,11-12,12-13,13-14,14-15,15-16",
+   "vals" -> "7.53333,4.78333,4.88333,6.33333,3.98333,3.95,4.11667,4.25,4.01667,3.9,4.4,4.23333,4.25,4.03333,4.71667,4.78333",
+   "colors" -> "#E66633,#E66633,#E66633,#E66633,#33B333,#33B333,#FFCC33,#FFCC33,#FFCC33,#33B333,#FFCC33,#FFCC33,#FFCC33,#FFCC33,#E66633,#E66633",
+   "title" -> "1 km Splits \[Bullet] median 4'15\" \[Bullet] best 3'54\"",
+   "xlabel" -> "Km", "ylabel" -> "Pace (min/km)",
+   "unit" -> "pace", "yMin" -> "3", "yMax" -> "8.5"}]
+```
+
+URL byte sizes (all comfortably under 8 KB):
+
+| Chart | bytes |
+|---|---|
+| hr | 2,734 |
+| pace | 2,625 |
+| power | 2,614 |
+| cadence | 2,722 |
+| stride | 2,936 |
+| vo | 2,664 |
+| gct | 2,756 |
+| elevation | 2,502 |
+| hrZones | 279 |
+| trainingLoad | 204 |
+| effort | 321 |
+| splits | 643 |
+
+## N. (former Wolfram-Plot recipes — superseded by the live endpoints above)
+
+The pre-deployment version of `queries.md` listed full `ListLinePlot`/`PieChart`/`BarChart` calls for each chart. Those moved into `runChartsAPI.wl` as the deployed endpoint body, so the same plot options are still applied — but the caller now supplies only the data arrays. Refer to `runChartsAPI.wl` for the canonical chart-styling code.
+
+## --- legacy: original Wolfram-Plot inline cells (kept for reference) ---
+
+## L0. Wolfram — HR plot (inline, pre-endpoint)
 
 ```mathematica
 hrData = {<158 means from query I>};
