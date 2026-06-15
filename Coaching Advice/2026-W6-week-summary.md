@@ -36,5 +36,24 @@ Status remains **monitoring — tolerated full week**. No flare during peak 800 
 - **Mon 06-15 ✓** (above) — recovery TL 52.
 - Watch upcoming midweek quality: TL should comfortably exceed 134 (Sun's long-run TL). If it doesn't, signal of accumulated fatigue → check sleep/illness/legs and consider a recovery week trigger.
 
+## Per-session deep-dives
+
+Each session linked here has its own data-derived "Visual report" section with live SVG charts (HR, pace, splits, stride/elevation as appropriate), regenerated from FIT data on every view via Wolfram Cloud `APIFunction`s. URLs carry the data in the query string — no static images.
+
+| Day | Note | Charts included |
+|---|---|---|
+| Thu 06-11 | [2026-06-11 quality 8×800 (ill)](2026-06-11-quality-8x800-ill.md) | Full HealthFit-style reproduction in [`Examples/2026-06-11-074251-Reproduction/`](../Examples/2026-06-11-074251-Reproduction/report.md) — 12 charts |
+| Fri 06-12 | *(no note)* | — |
+| Sat 06-13 | *(no note)* | — |
+| Sun 06-14 | [2026-06-14 long run 20 km](2026-06-14-long-run-20km.md) | HR / pace / elevation over distance |
+| Mon 06-15 | *(no note)* | — |
+
+Earlier W5 sessions referenced by these notes:
+
+| Day | Note | Charts included |
+|---|---|---|
+| Sun 05-31 | analysed in [TFL niggle note](2026-06-01-left-tfl-niggle.md) | stride / cadence / vertical ratio over distance (200 m bins) |
+| Wed 06-03 | [2026-06-03 quality 6×800](2026-06-03-quality-6x800.md) | HR / pace / 1 km splits |
+
 ---
 *Data via BOSS `(Filter (Load "/dir" session) (Equal start_time ...))` — workaround for the NBSP-encoding hazard in Apple Watch FIT filenames.*
