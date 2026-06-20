@@ -5,7 +5,9 @@
 Ongoing running coaching for Holger Pirk. See `CONTEXT.md` for full athlete profile.
 
 ## Current Goal
-**Sub-1:20 Battersea Park Half Marathon, 18 July 2026** — polarised training model.
+**Battersea Park Half Marathon, 18 July 2026** — polarised training model.
+- **Primary: sub-1:21** (3:50/km) — re-aimed 2026-06-20 after W7 5k TT (18:47.7).
+- **Stretch: sub-1:20** (3:47/km).
 
 ## Critical Rules
 
